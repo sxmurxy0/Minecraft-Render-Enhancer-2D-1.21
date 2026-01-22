@@ -9,6 +9,8 @@ import java.util.stream.Collectors;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+
+import dev.sxmurxy.mre.MinecraftRenderEnhancer;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.resource.ResourceManager;
 import net.minecraft.util.Identifier;
@@ -19,7 +21,7 @@ public final class ResourceProvider {
 	private static final Gson GSON = new Gson();
 	
 	public static Identifier getShaderIdentifier(String name) {
-		return Identifier.of("mre", "core/" + name);
+		return Identifier.of(MinecraftRenderEnhancer.MOD_ID, "core/" + name);
 	}
 
 	public static JsonObject toJson(Identifier identifier) {

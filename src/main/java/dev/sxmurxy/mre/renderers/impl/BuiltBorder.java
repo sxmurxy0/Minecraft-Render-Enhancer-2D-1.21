@@ -1,22 +1,20 @@
 package dev.sxmurxy.mre.renderers.impl;
 
-import net.minecraft.client.gl.Defines;
-import net.minecraft.client.gl.ShaderProgram;
-import net.minecraft.client.gl.ShaderProgramKey;
-import net.minecraft.client.render.VertexFormat.DrawMode;
+import com.mojang.blaze3d.vertex.VertexFormat.DrawMode;
 import net.minecraft.client.render.BufferBuilder;
-import net.minecraft.client.render.BufferRenderer;
+import net.minecraft.client.render.BuiltBuffer;
 import net.minecraft.client.render.Tessellator;
 import net.minecraft.client.render.VertexFormats;
+
 import org.joml.Matrix4f;
 
-import com.mojang.blaze3d.systems.RenderSystem;
-
+import com.mojang.blaze3d.systems.RenderPass;
 import dev.sxmurxy.mre.builders.states.QuadColorState;
 import dev.sxmurxy.mre.builders.states.QuadRadiusState;
 import dev.sxmurxy.mre.builders.states.SizeState;
-import dev.sxmurxy.mre.providers.ResourceProvider;
 import dev.sxmurxy.mre.renderers.IRenderer;
+import dev.sxmurxy.mre.utils.BufferRenderer;
+import dev.sxmurxy.mre.utils.CRenderPipelines;
 
 public record BuiltBorder(
         SizeState size,
@@ -26,22 +24,9 @@ public record BuiltBorder(
         float internalSmoothness, float externalSmoothness
     ) implements IRenderer {
 
-    private static final ShaderProgramKey RECTANGLE_SHADER_KEY = new ShaderProgramKey(ResourceProvider.getShaderIdentifier("border"),
-        VertexFormats.POSITION_COLOR, Defines.EMPTY);
-
     @Override
     public void render(Matrix4f matrix, float x, float y, float z) {
-        RenderSystem.enableBlend();
-        RenderSystem.defaultBlendFunc();
-        RenderSystem.disableCull();
-
         float width = this.size.width(), height = this.size.height();
-        ShaderProgram shader = RenderSystem.setShader(RECTANGLE_SHADER_KEY);
-        shader.getUniform("Size").set(width, height);
-        shader.getUniform("Radius").set(this.radius.radius1(), this.radius.radius2(),
-            this.radius.radius3(), this.radius.radius4());
-        shader.getUniform("Thickness").set(thickness);
-        shader.getUniform("Smoothness").set(this.internalSmoothness, this.externalSmoothness);
 
         BufferBuilder builder = Tessellator.getInstance().begin(DrawMode.QUADS, VertexFormats.POSITION_COLOR);
         builder.vertex(matrix, x, y, z).color(this.color.color1());
@@ -49,10 +34,18 @@ public record BuiltBorder(
         builder.vertex(matrix, x + width, y + height, z).color(this.color.color3());
         builder.vertex(matrix, x + width, y, z).color(this.color.color4());
 
-        BufferRenderer.drawWithGlobalProgram(builder.end());
+        BuiltBuffer buffer = builder.end();
+        RenderPass renderPass = BufferRenderer.uploadBuffer(buffer);
 
-        RenderSystem.enableCull();
-        RenderSystem.disableBlend();
+        renderPass.setPipeline(CRenderPipelines.BORDER_PIPLINE);
+
+        renderPass.setUniform("Size", width, height);
+        renderPass.setUniform("Radius", this.radius.radius1(), this.radius.radius2(),
+            this.radius.radius3(), this.radius.radius4());
+        renderPass.setUniform("Thickness", thickness);
+        renderPass.setUniform("Smoothness", this.internalSmoothness, this.externalSmoothness);
+
+        BufferRenderer.renderBuffer(buffer, renderPass);
     }
 
 }

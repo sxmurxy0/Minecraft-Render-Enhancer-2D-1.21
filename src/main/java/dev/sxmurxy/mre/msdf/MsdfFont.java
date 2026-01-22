@@ -7,6 +7,7 @@ import java.util.stream.Collectors;
 import org.joml.Matrix4f;
 
 import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.textures.GpuTexture;
 
 import dev.sxmurxy.mre.msdf.FontData.AtlasData;
 import dev.sxmurxy.mre.msdf.FontData.GlyphData;
@@ -35,8 +36,8 @@ public final class MsdfFont {
 		this.kernings = kernings;
 	}
 
-	public int getTextureId() {
-		return this.texture.getGlId();
+	public GpuTexture getGlTexture() {
+		return this.texture.getGlTexture();
 	}
 	
 	public void applyGlyphs(Matrix4f matrix, VertexConsumer consumer, String text, float size, float thickness, float spacing, float x, float y, float z, int color) {
@@ -127,7 +128,7 @@ public final class MsdfFont {
 						"; Are you sure this is json file? Try to check the correctness of its syntax.");
 			}
 			
-			RenderSystem.recordRenderCall(() -> texture.setFilter(true, false));
+			RenderSystem.queueFencedTask(() -> texture.setFilter(true, false));
 			
 			float aWidth = data.atlas().width();
 			float aHeight = data.atlas().height();
