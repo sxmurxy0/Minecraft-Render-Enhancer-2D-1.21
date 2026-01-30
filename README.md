@@ -10,7 +10,12 @@ public final class MinecraftRenderEnhancer implements ModInitializer {
 
 	@Override
 	public void onInitialize() {
-		HudRenderCallback.EVENT.register(this::render);
+        HudLayerRegistrationCallback.EVENT.register((layeredDrawer) -> {
+            layeredDrawer.attachLayerAfter(IdentifiedLayer.MISC_OVERLAYS, new WrappedLayer(
+                Identifier.of(MOD_ID, "test-hud"),
+                this::render
+            ));
+        });
 	}
 
 	private void render(DrawContext context, RenderTickCounter tickCounter) {
