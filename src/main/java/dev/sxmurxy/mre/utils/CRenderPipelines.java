@@ -64,5 +64,14 @@ public final class CRenderPipelines {
             .withBlend(BlendFunction.TRANSLUCENT)
             .withVertexFormat(VertexFormats.POSITION_COLOR, DrawMode.QUADS).build()
     );
+    public static final RenderPipeline BLIT_PIPLINE = RenderPipelines.register(
+        RenderPipeline.builder(new RenderPipeline.Snippet[0])
+            .withLocation("pipeline/blit")
+            .withVertexShader("core/blit_screen")
+            .withFragmentShader("core/blit_screen")
+            .withSampler("InSampler")
+            .withoutBlend()
+            .withVertexFormat(VertexFormats.POSITION, DrawMode.QUADS).build()
+    );
 
 }
