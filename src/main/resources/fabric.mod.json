@@ -12,7 +12,7 @@
 	"environment": "*",
 	"entrypoints": {
 		"main": [
-			"dev.sxmurxy.mre.MinecraftRenderEnhancer"
+			"dev.sxmurxy.mre.MREMod"
 		]
 	},
 	"mixins": [],
